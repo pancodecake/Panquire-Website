@@ -27,7 +27,7 @@ export const site = {
 
 export const nav = [
   { href: '/products/t-01', label: 'Bikes' },
-  { href: '/about', label: 'Our story' },
+  { href: '/about', label: 'About us' },
   { href: '/partners', label: 'Partners' },
   { href: '/terms', label: 'Terms' },
 ];
@@ -45,7 +45,7 @@ export const footerColumns = [
     title: 'Company',
     links: [
       { href: '/about', label: 'About us' },
-      { href: '/about#founder', label: 'Our story' },
+      { href: '/about#founder', label: 'About us' },
       { href: '/partners#strategic', label: 'Strategic partnerships' },
     ],
   },
