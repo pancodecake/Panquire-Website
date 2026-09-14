@@ -1,0 +1,115 @@
+---
+import '../styles/base.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { site } from '../data/site';
+
+type Props = {
+  title: string;
+  description: string;
+  /** Extra JSON-LD for this page: Product, FAQPage, AboutPage, and so on. */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+};
+
+const { title, description, schema } = Astro.props;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const fullTitle = title === site.name ? title : `${title} — ${site.name}`;
+
+// Organisation and WebSite run on every page so AI systems and search
+// engines can resolve the brand as one entity across the site.
+const baseSchema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${site.url}/#organization`,
+    name: site.name,
+    legalName: site.legalName,
+    url: site.url,
+    email: site.email,
+    description: site.description,
+    slogan: site.tagline,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site.url}/#website`,
+    url: site.url,
+    name: site.name,
+    publisher: { '@id': `${site.url}/#organization` },
+  },
+];
+
+const pageSchema = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+const allSchema = [...baseSchema, ...pageSchema];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Three faces, three jobs, exactly as the imported designs use them:
+        Archivo for landing display type, Barlow for landing body copy,
+        Inter for the product page and every spec surface. */}
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=Barlow:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    {allSchema.map((node) => (
+      <script type="application/ld+json" set:html={JSON.stringify(node)} />
+    ))}
+
+    <script is:inline>
+      // Marks the document as scripted so CSS can hide reveal targets only
+      // when there is JavaScript to reveal them again.
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader />
+    <main id="main"><slot /></main>
+    <SiteFooter />
+
+    <script>
+      // One reveal mechanism for the whole site. Any element tagged
+      // [data-reveal] fades up once when it first enters the viewport.
+      // Sections tagged [data-reveal] also get .is-in for their own use
+      // (the About page keys its background crossfades off the same class).
+      const targets = document.querySelectorAll('[data-reveal]');
+      if (!('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              const el = entry.target as HTMLElement;
+              const delay = Number(el.dataset.revealDelay ?? 0);
+              window.setTimeout(() => el.classList.add('is-in'), delay);
+              io.unobserve(el);
+            });
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>

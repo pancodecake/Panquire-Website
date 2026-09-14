@@ -1,0 +1,427 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+import { termsTabs } from '../data/terms';
+
+const title = 'Terms of service';
+const description =
+  'Panquire payment, shipping, warranty, and returns terms for electric dirt bikes — searchable, with the answer to each question stated directly.';
+
+const MISSING = '[Not specified in source]';
+
+/** Split on the bracketed placeholder so it renders as a visible marker. */
+const parts = (text: string) => text.split(/(\[[^\]]+\])/g).filter(Boolean);
+
+// FAQPage over every question on the page. Questions that have no answer in
+// the source are left out of the structured data rather than published as an
+// answer that says nothing.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  url: `${site.url}/terms`,
+  dateModified: site.updated,
+  publisher: { '@id': `${site.url}/#organization` },
+  mainEntity: termsTabs.flatMap((tab) =>
+    tab.items
+      .filter((item) => !item.a.includes(MISSING))
+      .map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: [item.a, ...(item.list ?? [])].join(' '),
+        },
+      }))
+  ),
+};
+
+const total = termsTabs.reduce((n, t) => n + t.items.length, 0);
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="section terms" aria-labelledby="terms-title">
+    <div class="page">
+      <p class="eyebrow">Customer care</p>
+      <h1 id="terms-title">Terms of service</h1>
+      <p class="terms__lede">
+        {total} questions on payment, shipping, warranty and returns, each
+        answered directly. Search across all four sections at once.
+      </p>
+      <p class="muted terms__meta">Last updated {site.updated}.</p>
+
+      <!-- ---------- Search ---------- -->
+      <search class="search">
+        <div class="search__box">
+          <label class="field__label" for="terms-search">Search the terms</label>
+          <div class="search__row">
+            <input
+              class="input search__input"
+              id="terms-search"
+              type="search"
+              name="q"
+              placeholder="battery, refund, delivery date…"
+              autocomplete="off"
+              aria-describedby="search-status"
+            />
+            <button class="btn btn--ghost search__clear" type="button" data-search-clear hidden>
+              Clear
+            </button>
+          </div>
+        </div>
+        <p class="search__status muted" id="search-status" role="status" aria-live="polite"></p>
+      </search>
+
+      <!-- ---------- Tabs ---------- -->
+      <div class="tabs" role="tablist" aria-label="Terms sections">
+        {termsTabs.map((tab, i) => (
+          <button
+            class="tab"
+            role="tab"
+            type="button"
+            id={`tab-${tab.id}`}
+            aria-controls={`panel-${tab.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            data-tab={tab.id}
+          >
+            <span class="tab__label">{tab.label}</span>
+            <span class="tab__count" data-tab-count hidden></span>
+          </button>
+        ))}
+      </div>
+
+      <!-- ---------- Panels ---------- -->
+      {termsTabs.map((tab, i) => (
+        <div
+          class="panel"
+          role="tabpanel"
+          id={`panel-${tab.id}`}
+          aria-labelledby={`tab-${tab.id}`}
+          tabindex="0"
+          hidden={i !== 0}
+        >
+          <h2 class="visually-hidden">{tab.label}</h2>
+
+          {tab.items.map((item) => (
+            <details class="qa" id={item.id} data-qa>
+              <!-- The question is a real heading inside the summary, so the
+                   accordion is navigable by heading as well as by tab. -->
+              <summary class="qa__summary">
+                <h3 class="qa__q" data-search-text>{item.q}</h3>
+                <span class="qa__icon" aria-hidden="true"></span>
+              </summary>
+              <div class="qa__answer">
+                <p class="qa__a" data-search-text>
+                  {parts(item.a).map((chunk) =>
+                    chunk.startsWith('[') ? <span class="placeholder">{chunk}</span> : chunk
+                  )}
+                </p>
+                {item.list && (
+                  <ul class="qa__list">
+                    {item.list.map((li) => <li data-search-text>{li}</li>)}
+                  </ul>
+                )}
+              </div>
+            </details>
+          ))}
+
+          <p class="panel__empty" data-panel-empty hidden>
+            No matches in {tab.label.toLowerCase()}.
+          </p>
+        </div>
+      ))}
+
+      <p class="terms__empty" data-global-empty hidden>
+        <strong>No results.</strong> Nothing in the terms matches that search.
+        Try a shorter word, or <a href={`mailto:${site.email}`}>email us</a> and
+        we will answer directly.
+      </p>
+
+      <p class="muted terms__footnote">
+        Answers marked <span class="placeholder">{MISSING}</span> are questions
+        the source documents do not yet answer. They are shown rather than
+        hidden, and will be filled in as the policies are finalised.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  /* ============================================================
+     Terms explorer: tabs + search + accordion.
+
+     Tabs follow the ARIA tabs pattern (roving tabindex, arrow keys,
+     Home/End). The accordion is a native <details>, which is already a
+     keyboard-operable disclosure — so search "expands" a match simply by
+     setting .open.
+
+     Search runs across every panel, not just the visible one, so the tab
+     counts tell you where the matches are.
+     ============================================================ */
+
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+  const input = document.querySelector<HTMLInputElement>('#terms-search');
+  const clearBtn = document.querySelector<HTMLButtonElement>('[data-search-clear]');
+  const status = document.querySelector<HTMLElement>('#search-status');
+  const globalEmpty = document.querySelector<HTMLElement>('[data-global-empty]');
+
+  // ---------- Tabs ----------
+  function selectTab(next: HTMLButtonElement, focus = true) {
+    tabs.forEach((t, i) => {
+      const on = t === next;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      panels[i].hidden = !on;
+    });
+    if (focus) next.focus();
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => selectTab(tab, false));
+    tab.addEventListener('keydown', (e) => {
+      const keys: Record<string, number> = {
+        ArrowRight: i + 1,
+        ArrowLeft: i - 1,
+        Home: 0,
+        End: tabs.length - 1,
+      };
+      const target = keys[e.key];
+      if (target === undefined) return;
+      e.preventDefault();
+      selectTab(tabs[(target + tabs.length) % tabs.length]);
+    });
+  });
+
+  // Deep links: /terms?tab=shipping and /terms#ret-refund both work.
+  const wanted = new URLSearchParams(location.search).get('tab');
+  const fromHash = location.hash.slice(1);
+  const byId = fromHash && document.getElementById(fromHash)?.closest('[role="tabpanel"]');
+  const initial =
+    tabs.find((t) => t.dataset.tab === wanted) ??
+    (byId ? tabs[panels.indexOf(byId as HTMLElement)] : undefined);
+  if (initial) {
+    selectTab(initial, false);
+    if (fromHash) document.getElementById(fromHash)?.setAttribute('open', '');
+  }
+
+  // ---------- Search ----------
+  const esc = (s: string) =>
+    s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+  const nodes = Array.from(document.querySelectorAll<HTMLElement>('[data-search-text]'));
+  // Keep the original text so highlighting can be undone exactly.
+  nodes.forEach((n) => (n.dataset.raw = n.textContent ?? ''));
+
+  function highlight(node: HTMLElement, query: string) {
+    const raw = node.dataset.raw ?? '';
+    if (!query) {
+      node.textContent = raw;
+      return;
+    }
+    const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    node.innerHTML = esc(raw).replace(re, '<mark>$1</mark>');
+  }
+
+  function runSearch(query: string) {
+    const q = query.trim().toLowerCase();
+    let total = 0;
+    let sectionsWithHits = 0;
+
+    panels.forEach((panel, i) => {
+      let hits = 0;
+
+      panel.querySelectorAll<HTMLDetailsElement>('[data-qa]').forEach((qa) => {
+        const texts = Array.from(qa.querySelectorAll<HTMLElement>('[data-search-text]'));
+        const match = !q || texts.some((t) => (t.dataset.raw ?? '').toLowerCase().includes(q));
+
+        qa.hidden = !match;
+        if (match) hits++;
+        // Matching items open so the answer is visible without another click.
+        if (q) qa.open = match;
+        texts.forEach((t) => highlight(t, match ? q : ''));
+      });
+
+      if (!q) collapseAll(panel);
+
+      const badge = tabs[i].querySelector<HTMLElement>('[data-tab-count]');
+      if (badge) {
+        badge.hidden = !q;
+        badge.textContent = String(hits);
+      }
+      tabs[i].classList.toggle('is-empty', Boolean(q) && hits === 0);
+
+      const empty = panel.querySelector<HTMLElement>('[data-panel-empty]');
+      if (empty) empty.hidden = !q || hits > 0;
+
+      total += hits;
+      if (hits > 0) sectionsWithHits++;
+    });
+
+    if (clearBtn) clearBtn.hidden = !q;
+    if (globalEmpty) globalEmpty.hidden = !q || total > 0;
+    if (status) {
+      status.textContent = !q
+        ? ''
+        : total === 0
+          ? 'No results.'
+          : `${total} result${total === 1 ? '' : 's'} in ${sectionsWithHits} section${sectionsWithHits === 1 ? '' : 's'}.`;
+    }
+  }
+
+  // Collapse everything again when the search is cleared.
+  function collapseAll(panel: HTMLElement) {
+    panel.querySelectorAll<HTMLDetailsElement>('[data-qa]').forEach((qa) => (qa.open = false));
+  }
+
+  input?.addEventListener('input', () => runSearch(input.value));
+  clearBtn?.addEventListener('click', () => {
+    if (!input) return;
+    input.value = '';
+    runSearch('');
+    input.focus();
+  });
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value) {
+      input.value = '';
+      runSearch('');
+    }
+  });
+</script>
+
+<style>
+  .terms h1 { margin-block-start: var(--space-5); font-size: var(--step-5); }
+  .terms__lede {
+    margin-block-start: var(--space-5);
+    font-size: var(--step-1);
+    color: var(--text-muted);
+    max-width: var(--measure);
+  }
+  .terms__meta { margin-block-start: var(--space-3); font-size: var(--step--1); }
+
+  /* ---------- Search ---------- */
+  .search { display: block; margin-block: var(--space-8) var(--space-6); max-width: var(--width-content); }
+  .search__row { display: flex; gap: var(--space-3); margin-block-start: var(--space-2); }
+  .search__input { flex: 1; }
+  .search__status { min-height: 1.6em; margin-block-start: var(--space-3); font-size: var(--step--1); }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    border-block-end: 1px solid var(--line);
+  }
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: none;
+    border: 0;
+    border-block-end: 2px solid transparent;
+    margin-block-end: -1px;
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    
+    font-weight: var(--weight-bold);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-eyebrow);
+    cursor: pointer;
+    transition: color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected='true'] { color: var(--text); border-block-end-color: var(--accent); }
+  .tab.is-empty { opacity: 0.45; }
+  .tab__count {
+    font-variant-numeric: tabular-nums;
+    background: var(--accent-wash);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    padding: 0 var(--space-2);
+    min-width: 1.6rem;
+    text-align: center;
+  }
+
+  /* ---------- Panels and accordion ---------- */
+  .panel { padding-block-start: var(--space-6); }
+  .panel:focus-visible { outline-offset: var(--space-2); }
+
+  .qa { border-block-end: 1px solid var(--line-soft); }
+  .qa__summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-block: var(--space-5);
+    cursor: pointer;
+    list-style: none;
+  }
+  .qa__summary::-webkit-details-marker { display: none; }
+  .qa__q {
+    font-family: var(--font-body);
+    
+    font-weight: var(--weight-medium);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-normal);
+  }
+  .qa__summary:hover .qa__q { color: var(--text); }
+
+  .qa__icon {
+    flex: none;
+    width: var(--space-4);
+    height: var(--space-4);
+    position: relative;
+    margin-block-start: 0.35em;
+  }
+  .qa__icon::before,
+  .qa__icon::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--text-muted);
+    transition: transform var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+  }
+  .qa__icon::after { transform: rotate(90deg); }
+  .qa[open] .qa__icon::before,
+  .qa[open] .qa__icon::after { background: var(--accent); }
+  .qa[open] .qa__icon::after { transform: rotate(0deg); }
+
+  .qa__answer { padding-block-end: var(--space-6); max-width: var(--measure); }
+  .qa__a { color: var(--text); font-size: var(--step-0); }
+  .qa__list {
+    margin-block-start: var(--space-4);
+    padding-inline-start: var(--space-5);
+    display: grid;
+    gap: var(--space-2);
+    color: var(--text-muted);
+  }
+
+  /* Search highlight. Crimson wash rather than the browser default yellow. */
+  .qa :global(mark) {
+    background: var(--accent-wash);
+    color: var(--text);
+    border-block-end: 1px solid var(--accent);
+    padding-inline: 0.1em;
+  }
+
+  .panel__empty,
+  .terms__empty {
+    padding: var(--space-6);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+    margin-block-start: var(--space-5);
+  }
+  .terms__empty { max-width: var(--measure); }
+
+  .terms__footnote {
+    margin-block-start: var(--space-8);
+    font-size: var(--step--1);
+    max-width: var(--measure);
+  }
+</style>

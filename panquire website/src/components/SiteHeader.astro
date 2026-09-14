@@ -1,0 +1,178 @@
+---
+import { nav, site } from '../data/site';
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => {
+  const base = href.split(/[?#]/)[0];
+  return path === base || (base !== '/' && path.startsWith(base));
+};
+---
+
+<header class="header">
+  <div class="header__inner page">
+    <a class="brand" href="/">
+      <span class="brand__name">{site.name}</span>
+      <span class="brand__chevron" aria-hidden="true"></span>
+    </a>
+
+    <button
+      class="header__burger"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-nav-toggle
+    >
+      <span class="visually-hidden">Menu</span>
+      <span class="header__burger-bars" aria-hidden="true"></span>
+    </button>
+
+    <nav class="nav" id="site-nav" aria-label="Main">
+      <ul class="nav__list">
+        {nav.map((item) => (
+          <li>
+            <a
+              class="nav__link"
+              href={item.href}
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+            >{item.label}</a>
+          </li>
+        ))}
+      </ul>
+      <a class="btn btn--primary btn--sm nav__cta" href="/products/t-01">Reserve the T-01</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Mobile nav. The markup is open by default; CSS hides it under 62rem
+  // and this only flips the state the CSS reads.
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const header = document.querySelector<HTMLElement>('.header');
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    header?.classList.toggle('is-open', !open);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && header?.classList.contains('is-open')) {
+      header.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      toggle?.focus();
+    }
+  });
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: linear-gradient(180deg, var(--a-carbon-92), var(--a-carbon-72));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-block-end: 1px solid var(--line-hairline);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    min-height: var(--header-h);
+  }
+
+  /* The wordmark is italic Archivo 800 with a sheared chevron beside it —
+     the treatment carried over from the imported landing design. */
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: none;
+  }
+  .brand__name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-black);
+    font-style: italic;
+    font-size: var(--step-2);
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .brand__chevron {
+    display: block;
+    width: 1.625rem;
+    height: 0.75rem;
+    background: var(--grad-chevron);
+    clip-path: polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+  }
+  .brand:hover .brand__name { color: var(--text); }
+
+  .nav { display: flex; align-items: center; gap: var(--space-7); }
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    list-style: none;
+    padding: 0;
+  }
+  .nav__link {
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: var(--weight-semi);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-block: var(--space-2);
+    border-block-end: 2px solid transparent;
+    transition: color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  }
+  .nav__link:hover { color: var(--text); }
+  .nav__link[aria-current='page'] { color: var(--text); border-block-end-color: var(--accent); }
+
+  .header__burger { display: none; }
+
+  @media (max-width: 62rem) {
+    .header__burger {
+      display: grid;
+      place-items: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+    }
+    .header__burger-bars,
+    .header__burger-bars::before,
+    .header__burger-bars::after {
+      content: "";
+      display: block;
+      width: 1.15rem;
+      height: 2px;
+      background: var(--text);
+      position: relative;
+    }
+    .header__burger-bars::before { position: absolute; top: -6px; }
+    .header__burger-bars::after { position: absolute; top: 6px; }
+
+    .nav {
+      position: absolute;
+      inset-inline: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-4);
+      padding: var(--space-5) var(--gutter) var(--space-6);
+      background: var(--bg);
+      border-block-end: 1px solid var(--line);
+      display: none;
+    }
+    .nav__list { flex-direction: column; align-items: stretch; gap: 0; }
+    .nav__link {
+      display: block;
+      padding-block: var(--space-4);
+      border-block-end: 1px solid var(--line-hairline);
+    }
+    .nav__link[aria-current='page'] { border-block-end-color: var(--accent); }
+    .header.is-open .nav { display: flex; }
+  }
+</style>

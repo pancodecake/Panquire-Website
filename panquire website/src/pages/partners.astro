@@ -1,0 +1,450 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+const title = 'Partner with us';
+const description =
+  'Affiliate program terms, corporate and bulk purchasing, and dealer cooperation for Panquire electric dirt bikes.';
+
+/*
+ * Affiliate terms are transcribed from the source document. Commission rate
+ * and attribution window are not stated there and stay as visible
+ * placeholders — do not fill these in without the signed program terms.
+ */
+type Clause = {
+  id: string;
+  n: string;
+  title: string;
+  /** Rendered as a pulled-out statement above the clause body. */
+  lead?: string;
+  body?: string[];
+  ordered?: string[];
+  after?: string[];
+  list?: string[];
+  listTwo?: string[];
+  tail?: string[];
+};
+
+const affiliate: Clause[] = [
+  {
+    id: 'eligibility',
+    n: '1',
+    title: 'Agreement and eligibility',
+    body: [
+      'By applying to, accepting an invitation to, participating in, or promoting Panquire through the Affiliate Program, you agree to these Affiliate Program Terms, the applicable Shopify Collabs terms and policies, and all applicable laws and platform rules.',
+      'You must provide accurate and current information about yourself, your business, your websites, your social-media accounts, and your promotional channels.',
+      'You may not apply using another person’s identity or represent that you have a relationship with Panquire that has not been authorized.',
+      'Participation is subject to Panquire’s approval.',
+    ],
+  },
+  {
+    id: 'commission',
+    n: '2',
+    title: 'Commission rate',
+    lead: 'The standard commission rate is [X%] of the eligible commission base.',
+    body: ['The applicable rate may vary by:'],
+    list: [
+      'Product',
+      'Collection',
+      'Campaign',
+      'Promotional period',
+      'Affiliate',
+      'Discount code',
+      'Customer location',
+      'Special written agreement',
+    ],
+    after: [
+      'The current rate and applicable program details are shown in Shopify Collabs or in a separate written agreement with Panquire.',
+      'Panquire may change commission rates for future referrals by providing notice through Shopify Collabs or another reasonable method. A rate change will not affect commissions that were already validly earned before the effective date of the change, except where adjustment is required because of cancellation, refund, fraud, chargeback, or another permitted reversal.',
+    ],
+  },
+  {
+    id: 'qualifying',
+    n: '3',
+    title: 'Qualifying purchases',
+    body: ['A qualifying purchase generally means a purchase that:'],
+    ordered: [
+      'Is made through an eligible Panquire store or sales channel;',
+      'Is attributed to your approved affiliate link or discount code through Shopify Collabs;',
+      'Is completed and paid for by the customer;',
+      'Is not canceled, returned, refunded, disputed, fraudulent, or subject to a chargeback; and',
+      'Otherwise satisfies the applicable Program Terms.',
+    ],
+    after: [
+      'Unless stated otherwise, commissions may be calculated on the eligible product subtotal after discounts and before taxes, shipping charges, customs duties, payment-processing fees, and other excluded amounts.',
+      'The applicable commission base and exclusions will be shown in Shopify Collabs or provided by Panquire.',
+      'The following may be excluded from commissions:',
+    ],
+    list: [
+      'Taxes',
+      'Shipping charges',
+      'Customs duties and import fees',
+      'Gift cards',
+      'Canceled orders',
+      'Fully or partially refunded orders',
+      'Returned Products',
+      'Chargebacks',
+      'Fraudulent or suspicious transactions',
+      'Orders placed by affiliates for themselves',
+      'Orders that do not meet program or attribution requirements',
+      'Orders excluded under a campaign or product-specific offer',
+    ],
+  },
+  {
+    id: 'attribution',
+    n: '4',
+    title: 'Affiliate attribution',
+    body: ['Affiliate attribution is determined using Shopify Collabs and its applicable tracking systems.'],
+    lead: 'The applicable attribution period is [X days].',
+    after: ['A commission may not be recorded if:'],
+    list: [
+      'The customer does not use your link or code;',
+      'Tracking is blocked or deleted;',
+      'The order is placed through an excluded channel;',
+      'Another affiliate receives attribution under the applicable program rules;',
+      'The customer uses an unauthorized or expired code;',
+      'The order is canceled, returned, refunded, disputed, or fraudulent; or',
+      'The transaction otherwise fails to qualify.',
+    ],
+    tail: [
+      'Shopify Collabs reporting and Panquire’s transaction records will generally control commission calculations, subject to correction of demonstrated errors.',
+    ],
+  },
+  {
+    id: 'payment',
+    n: '5',
+    title: 'Pending commissions and payment',
+    body: [
+      'Commissions may remain pending for a holding period to allow time for cancellations, refunds, returns, chargebacks, fraud reviews, and payment disputes.',
+      'The applicable holding period is the period displayed in Shopify Collabs or otherwise communicated by Panquire. Shopify currently allows merchants to configure a holding period within a range that may be 1–90 days, subject to Shopify’s then-current tools and policies.',
+      'During the holding period:',
+    ],
+    list: [
+      'Canceled and fully refunded orders may be removed automatically;',
+      'Panquire may dispute suspicious or improperly attributed commissions;',
+      'A commission may be adjusted if the underlying transaction changes; and',
+      'The commission is not yet considered finally approved.',
+    ],
+    after: [
+      'Payments are handled through the payment workflow and payment methods enabled for the program through Shopify Collabs.',
+      'Panquire is responsible for approved commissions owed under the Affiliate Program. Shopify Collabs provides platform and payment functionality but is not the party responsible for Panquire’s commission obligations under the Affiliate Program.',
+      'You may need to:',
+    ],
+    listTwo: [
+      'Maintain an active Shopify Collabs account;',
+      'Complete required payout information;',
+      'Provide tax forms or identity information;',
+      'Satisfy payment-provider requirements.',
+    ],
+  },
+];
+
+const corporate = [
+  {
+    title: 'Target customers',
+    body: 'Mainly designed for business customers with bulk purchase needs, including dealers, rental businesses, outdoor camps, event organizers, riding clubs, and group buyers. For customers needing to purchase electric dirt bike models in bulk, a corporate purchase is a more suitable option.',
+  },
+  {
+    title: 'Bulk purchasing benefits',
+    body: 'Compared with buying a single unit, bulk purchasing electric dirt bike models is more suitable for business operations. Business customers can plan model combinations based on different rider ages, use scenarios, and budgets, helping better support rental, resale, outdoor activity, or group riding projects.',
+  },
+  {
+    title: 'Multiple-unit purchasing',
+    body: 'Suitable purchase solutions can be provided based on the customer’s order quantity, target models, inventory status, and delivery location. Whether it is a small trial order or a larger-scale purchase, customers can contact the team for further discussion.',
+  },
+  {
+    title: 'Manufacturer sourcing',
+    body: 'Sourcing is handled directly with the manufacturer, so order quantity, target models, inventory status, and delivery location all feed into the solution offered.',
+  },
+  {
+    title: 'Dealer cooperation',
+    body: 'Dealers, resellers, and local partners are welcome to cooperate, helping customers expand their electric dirt bike product lineup and receive support that better fits business purchase needs.',
+  },
+  {
+    title: 'Exclusive pricing',
+    body: 'A quote will be provided for business customers based on purchase quantity, target models, inventory status, and delivery location. The clearer the purchase information, the more accurate the quote will be.',
+  },
+  {
+    title: 'Shipping and after-sales support',
+    body: 'Shipping arrangement information can be provided based on the order situation, along with product usage guidance, warranty service, and after-sales support information.',
+  },
+  {
+    title: 'Purchase process',
+    body: 'Customers can contact the business team and provide their company name, business type, target electric dirt bike models, estimated purchase quantity, delivery location, and other requirements. The team will provide a suitable solution based on your purchasing goals.',
+  },
+];
+
+/**
+ * Splits text on [bracketed] placeholders so they can be rendered as visible
+ * markers rather than disappearing into the prose. Values missing from the
+ * source documents must stay obvious until someone fills them in.
+ */
+const parts = (text: string) => text.split(/(\[[^\]]+\])/g).filter(Boolean);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: `${site.url}/partners`,
+  dateModified: site.updated,
+  publisher: { '@id': `${site.url}/#organization` },
+};
+---
+
+<Base title={title} description={description} schema={schema}>
+  <!-- ========== 1 · STRATEGIC PARTNERSHIPS ========== -->
+  <section class="section partners-hero" id="strategic" aria-labelledby="partners-title">
+    <div class="page">
+      <p class="eyebrow">Work with us</p>
+      <h1 id="partners-title">Partner with us</h1>
+      <p class="partners-hero__lede">
+        Three ways to work with Panquire: promote the bikes as an affiliate,
+        buy them in volume for a fleet or a shop, or bring us a partnership we
+        have not thought of yet.
+      </p>
+
+      <!-- TODO(copy): strategic partnerships section copy is a placeholder in
+           the source brief. Replace before launch. -->
+      <p class="muted partners-hero__note">
+        Placeholder: strategic partnership positioning copy goes here.
+      </p>
+
+      <nav class="partners-jump" aria-label="On this page">
+        <a class="btn btn--ghost" href="#affiliate">Affiliate program</a>
+        <a class="btn btn--ghost" href="#corporate">Corporate purchase</a>
+        <a class="btn btn--primary" href={`mailto:${site.email}`}>Email the team</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ========== 2 · AFFILIATE ========== -->
+  <section class="section section--well" id="affiliate" aria-labelledby="affiliate-title">
+    <div class="page">
+      <div class="head">
+        <p class="eyebrow">Affiliate program</p>
+        <h2 id="affiliate-title">Affiliate program</h2>
+        <p class="head__sub">
+          Run through Shopify Collabs. You promote with an approved link or
+          discount code; approved commissions are paid after the holding
+          period.
+        </p>
+      </div>
+
+      <div class="affiliate-terms" id="affiliate-terms">
+        <h3 class="affiliate-terms__title">Affiliate program terms</h3>
+        <p class="muted affiliate-terms__meta">Last updated {site.updated}.</p>
+
+        {affiliate.map((clause) => (
+          <details class="clause">
+            <summary class="clause__summary">
+              <span class="clause__n" aria-hidden="true">{clause.n}</span>
+              <h4 class="clause__heading">{clause.title}</h4>
+            </summary>
+            <div class="clause__body">
+              {clause.lead && (
+                <p class="clause__lead">
+                  {parts(clause.lead).map((chunk) =>
+                    chunk.startsWith('[') ? <span class="placeholder">{chunk}</span> : chunk
+                  )}
+                </p>
+              )}
+              {clause.body?.map((p) => <p>{p}</p>)}
+              {clause.ordered && (
+                <ol class="clause__list">
+                  {clause.ordered.map((li) => <li>{li}</li>)}
+                </ol>
+              )}
+              {clause.after?.map((p) => <p>{p}</p>)}
+              {clause.list && (
+                <ul class="clause__list">
+                  {clause.list.map((li) => <li>{li}</li>)}
+                </ul>
+              )}
+              {clause.listTwo && (
+                <ul class="clause__list">
+                  {clause.listTwo.map((li) => <li>{li}</li>)}
+                </ul>
+              )}
+              {clause.tail?.map((p) => <p>{p}</p>)}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 3 · CORPORATE PURCHASE ========== -->
+  <section class="section" id="corporate" aria-labelledby="corporate-title">
+    <div class="page">
+      <div class="head">
+        <p class="eyebrow">Corporate purchase</p>
+        <h2 id="corporate-title">Corporate and bulk purchase</h2>
+        <p class="head__sub">
+          For dealers, rental fleets, outdoor camps, event organisers, riding
+          clubs and group buyers.
+        </p>
+      </div>
+
+      <div class="corp">
+        {corporate.map((block, i) => (
+          <article class="corp__item" data-reveal data-reveal-delay={(i % 3) * 70}>
+            <h3 class="corp__title">{block.title}</h3>
+            <p class="muted">{block.body}</p>
+          </article>
+        ))}
+      </div>
+
+      <!-- TODO(backend): route this to the business team inbox or CRM. -->
+      <form class="corp__form" method="post" action="#">
+        <h3 class="corp__form-title">Request a quote</h3>
+        <p class="muted corp__form-lede">
+          The more of this we have, the more accurate the quote.
+        </p>
+        <div class="corp__fields">
+          <div class="field">
+            <label class="field__label" for="company">Company name</label>
+            <input class="input" id="company" name="company" type="text" autocomplete="organization" required />
+          </div>
+          <div class="field">
+            <label class="field__label" for="business-type">Business type</label>
+            <input class="input" id="business-type" name="business_type" type="text" placeholder="Dealer, rental, camp, club" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="models">Target models</label>
+            <input class="input" id="models" name="models" type="text" placeholder="T-01, T-02" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="quantity">Estimated quantity</label>
+            <input class="input" id="quantity" name="quantity" type="number" min="1" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="destination">Delivery location</label>
+            <input class="input" id="destination" name="destination" type="text" autocomplete="country-name" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="corp-email">Email</label>
+            <input class="input" id="corp-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field corp__field--wide">
+            <label class="field__label" for="requirements">Other requirements</label>
+            <textarea class="input" id="requirements" name="requirements" rows="4"></textarea>
+          </div>
+        </div>
+        <button class="btn btn--primary" type="submit">Send the request</button>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Section heading block: eyebrow, title, standfirst. */
+  .head { display: grid; gap: var(--space-4); margin-block-end: var(--space-7); }
+  .head__sub { color: var(--text-muted); max-width: var(--measure); font-size: var(--step-1); }
+
+  .partners-hero h1 { margin-block-start: var(--space-5); font-size: var(--step-5); }
+  .partners-hero__lede {
+    margin-block-start: var(--space-5);
+    font-size: var(--step-1);
+    color: var(--text-muted);
+    max-width: var(--measure);
+  }
+  .partners-hero__note {
+    margin-block-start: var(--space-5);
+    padding-inline-start: var(--space-5);
+    border-inline-start: 2px solid var(--accent);
+    max-width: var(--measure);
+  }
+  .partners-jump { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block-start: var(--space-7); }
+
+  /* ---------- Affiliate clauses ----------
+     <details> does the disclosure natively: keyboard accessible, in the DOM
+     for search and AI crawlers whether open or closed, no script. */
+  .affiliate-terms {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    padding: clamp(var(--space-5), 3vw, var(--space-7));
+  }
+  .affiliate-terms__title { font-size: var(--step-2); }
+  .affiliate-terms__meta { font-size: var(--step--1); margin-block: var(--space-2) var(--space-6); }
+
+  .clause { border-block-start: 1px solid var(--line-soft); }
+  .clause:first-of-type { border-block-start: 0; }
+
+  .clause__summary {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    
+    font-weight: var(--weight-bold);
+    font-size: var(--step-1);
+  }
+  .clause__summary::-webkit-details-marker { display: none; }
+  .clause__n {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 1.5ch;
+  }
+  .clause__heading { flex: 1; font: inherit; letter-spacing: inherit; }
+  /* Disclosure affordance: a plus that becomes a minus. */
+  .clause__summary::after {
+    content: "+";
+    color: var(--text-muted);
+    font-size: var(--step-2);
+    line-height: 1;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+  .clause[open] .clause__summary::after { content: "–"; color: var(--accent); }
+  .clause__summary:hover { color: var(--text); }
+
+  .clause__body { padding-block-end: var(--space-6); max-width: var(--measure); }
+  .clause__body p { color: var(--text-muted); }
+  .clause__body p + p { margin-block-start: var(--space-4); }
+  .clause__body p.clause__lead {
+    color: var(--text);
+    font-size: var(--step-1);
+    padding-inline-start: var(--space-5);
+    border-inline-start: 2px solid var(--accent);
+    margin-block-end: var(--space-5);
+  }
+  .clause__list {
+    margin-block: var(--space-4);
+    padding-inline-start: var(--space-5);
+    display: grid;
+    gap: var(--space-2);
+    color: var(--text-muted);
+  }
+
+  /* ---------- Corporate ---------- */
+  .corp {
+    display: grid;
+    gap: var(--space-6) var(--space-7);
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  }
+  .corp__item { border-block-start: 1px solid var(--line); padding-block-start: var(--space-5); }
+  .corp__title { font-size: var(--step-1); margin-block-end: var(--space-3); }
+
+  .corp__form {
+    margin-block-start: var(--space-9);
+    max-width: var(--width-content);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    padding: clamp(var(--space-5), 3vw, var(--space-7));
+  }
+  .corp__form-title { font-size: var(--step-2); }
+  .corp__form-lede { margin-block-start: var(--space-2); }
+  .corp__fields {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    margin-block: var(--space-6);
+  }
+  .corp__field--wide { grid-column: 1 / -1; }
+  textarea.input { resize: vertical; }
+</style>

@@ -1,0 +1,284 @@
+/* ============================================================
+   PANQUIRE — BASE + SHARED PRIMITIVES
+   Reads tokens.css only. No raw values below this line.
+   ============================================================ */
+
+@import './tokens.css';
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + var(--space-4));
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100svh;
+  overflow-x: hidden;
+}
+
+img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+input, button, textarea, select { font: inherit; color: inherit; }
+p, li, h1, h2, h3, h4 { overflow-wrap: break-word; }
+
+/* ---------- Type defaults ----------
+   Landing register: Archivo 800, uppercase, tight tracking. */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-black);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+h1 { font-size: var(--step-5); line-height: var(--leading-tight); }
+h2 { font-size: var(--step-4); }
+h3 { font-size: var(--step-2); line-height: var(--leading-snug); }
+h4 { font-size: var(--step-1); line-height: var(--leading-snug); }
+
+p { text-wrap: pretty; }
+p + p { margin-top: var(--space-4); }
+
+a { color: var(--text); text-decoration: none; }
+a:hover { color: var(--accent); }
+/* Body copy keeps its underline — link affordance only disappears in
+   navigation and button contexts, where position carries it instead. */
+.prose a, .qa__answer a, .clause__body a { text-decoration: underline; text-underline-offset: 0.22em; }
+
+strong, b { font-weight: var(--weight-bold); }
+small { font-size: var(--step--1); }
+
+::selection { background: var(--a-crimson-34); }
+
+/* Numbers are the product here. Line them up everywhere. */
+.num, table, .stat__value, .spec__row { font-variant-numeric: tabular-nums; }
+
+/* ---------- Focus ---------- */
+:focus-visible {
+  outline: var(--focus-ring-w) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-off);
+  border-radius: var(--radius-xs);
+}
+:where(a, button, input, summary, [tabindex]):focus:not(:focus-visible) { outline: none; }
+
+.skip-link {
+  position: absolute; left: var(--space-4); top: var(--space-4);
+  z-index: var(--z-skip);
+  padding: var(--space-3) var(--space-5);
+  background: var(--accent); color: var(--text-on-accent);
+  border-radius: var(--radius-md);
+  transform: translateY(-200%);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* ---------- Layout primitives ---------- */
+.page { width: min(100% - var(--gutter) * 2, var(--width-page)); margin-inline: auto; }
+.page--tech { width: min(100% - var(--gutter) * 2, var(--width-tech)); margin-inline: auto; }
+.content { width: min(100%, var(--width-content)); margin-inline: auto; }
+.prose { max-width: var(--measure); }
+.prose--tight { max-width: var(--measure-tight); }
+
+.section { padding-block: var(--section-y); position: relative; }
+.section--lg { padding-block: var(--section-y-lg); }
+.section--well { background: var(--bg-well); }
+
+.stack > * + * { margin-block-start: var(--flow, var(--space-5)); }
+.cluster { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+
+/* ---------- Eyebrow ----------
+   Both imported designs open every section the same way: a short
+   crimson bar, then a wide-tracked uppercase label. It is the single
+   most repeated device on the site, so it is one class. */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.eyebrow::before {
+  content: "";
+  flex: none;
+  display: block;
+  width: 2.125rem;
+  height: 2px;
+  background: var(--accent);
+}
+/* Quieter variant used across the product page: thinner mark, less space. */
+.eyebrow--tech {
+  font-family: var(--font-technical);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-mark);
+  gap: var(--space-3);
+}
+.eyebrow--tech::before { width: 1.125rem; height: 1px; }
+.eyebrow--accent { color: var(--accent); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--text);
+  --btn-border: var(--a-white-24);
+  --btn-shadow: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  min-height: 2.75rem;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--btn-shadow);
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-slow) var(--ease-out),
+              border-color var(--dur-slow) var(--ease-out),
+              color var(--dur-slow) var(--ease-out),
+              box-shadow var(--dur-slow) var(--ease-out);
+}
+.btn--primary {
+  --btn-bg: var(--grad-cta);
+  --btn-fg: var(--text-on-accent);
+  --btn-border: transparent;
+  --btn-shadow: var(--elevation-cta);
+}
+.btn--primary:hover { --btn-shadow: var(--elevation-cta-lg); color: var(--text-on-accent); }
+.btn--primary:active { transform: translateY(1px); }
+.btn--ghost { --btn-bg: rgb(32 36 43 / 0.55); }
+.btn--ghost:hover { --btn-border: var(--accent); --btn-bg: var(--accent-soft); color: var(--text); }
+.btn--sm { padding: var(--space-3) var(--space-5); min-height: 2.5rem; --btn-shadow: var(--elevation-cta-sm); }
+.btn--block { width: 100%; }
+
+/* Product-page buttons are outlined and quiet — the Nocturne register. */
+.btn--tech {
+  font-family: var(--font-technical);
+  font-size: var(--step-0);
+  font-weight: var(--weight-semi);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  border-radius: var(--radius-lg);
+  min-height: 3rem;
+  --btn-border: var(--accent);
+  --btn-bg: transparent;
+}
+.btn--tech:hover { --btn-bg: var(--accent-soft); color: var(--text); }
+.btn--tech-quiet { --btn-border: var(--a-silver-18); --btn-fg: var(--text-muted); }
+.btn--tech-quiet:hover { --btn-border: var(--a-silver-30); --btn-bg: transparent; color: var(--text); }
+
+/* ---------- Rules ---------- */
+.hr {
+  height: 1px; border: 0;
+  background: var(--rule-fade);
+}
+
+/* ---------- Tables ---------- */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: var(--step-0); }
+caption { text-align: left; color: var(--text-muted); padding-block-end: var(--space-4); }
+th, td { padding: var(--space-3); text-align: left; border-block-end: 1px solid var(--line-soft); vertical-align: top; }
+thead th {
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  border-block-end-color: var(--line-strong);
+}
+tbody th { font-weight: var(--weight-regular); color: var(--text-muted); }
+
+/* ---------- Forms ---------- */
+.field { display: grid; gap: var(--space-2); }
+.field__label {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.input {
+  width: 100%;
+  padding: var(--space-4) var(--space-4);
+  min-height: 2.75rem;
+  background: rgb(20 20 22 / 0.75);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.input::placeholder { color: var(--text-faint); }
+.input:hover { border-color: var(--text-muted); }
+.input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--a-crimson-24);
+}
+textarea.input { resize: vertical; }
+
+/* ---------- Utilities ---------- */
+.muted { color: var(--text-muted); }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+/* Nocturne utility, carried over: product shots are cut out on a dark
+   ground, so lighten drops the black box around them. */
+.lighten { mix-blend-mode: lighten; background-color: transparent; }
+
+/* Values still missing from the source documents. Deliberately visible
+   so nobody ships them by accident. */
+.placeholder {
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Image slots awaiting the real photograph. Mirrors the <image-slot>
+   element the design files use, minus the editor behaviour. */
+.slot {
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--text-faint);
+  font-family: var(--font-technical);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-align: center;
+  padding: var(--space-5);
+  background-image:
+    repeating-linear-gradient(45deg, var(--line-hairline) 0 1px, transparent 1px 12px);
+}
+
+/* ---------- Scroll reveal ----------
+   One mechanism for the whole site, opt-in via [data-reveal].
+   Without JavaScript nothing is hidden. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--space-5));
+  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+}
+.js [data-reveal].is-in { opacity: 1; transform: none; }

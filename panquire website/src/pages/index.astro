@@ -1,0 +1,1064 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, valueProps, marquee, models, testimonials, featured } from '../data/site';
+import { hasAsset } from '../data/assets';
+
+const title = 'Electric dirt bikes built around four numbers';
+const description = site.description;
+const [t01] = models;
+
+// Featured stage. Models that share a render share its elements, so a
+// source is only ever loaded and decoded once.
+const [lead] = featured.models;
+const stageMedia = featured.models.map((m) => m.media);
+const stills = [...new Set(stageMedia.flatMap((m) => [m.empty, m.rest]))];
+const clips = [...new Set(stageMedia.flatMap((m) => [m.enter, m.out]))];
+const fits = new Map(
+  stageMedia.flatMap((m) => [m.empty, m.rest, m.enter].map((src) => [src, m.enterFit] as const))
+);
+const inPoints = new Map(
+  stageMedia.flatMap((m) => [[m.enter, m.enterIn] as const, [m.out, m.outIn] as const])
+);
+const fitStyle = (src: string) => {
+  const fit = fits.get(src);
+  return fit ? `--fit-scale:${fit.scale};--fit-x:${fit.x}%;--fit-y:${fit.y}%` : undefined;
+};
+
+// Photographs exported from the design project. Missing ones fall back to a
+// labelled slot rather than a broken image.
+const bikePhoto = hasAsset('/photos/bike-t01.jpg');
+const riderPhoto = hasAsset('/photos/rider-liam.png');
+
+/* Hero readout. The landing design carries three; these are the three the
+   spec sheet actually supports. */
+const heroStats = [
+  { label: 'Peak power', value: t01.peakShort },
+  { label: 'Top speed', value: t01.speed },
+  { label: 'Eco range', value: t01.range },
+];
+
+/* Icon paths for the value-prop bar, lifted from the imported design. */
+const icons: Record<string, string> = {
+  globe: 'M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18',
+  shield: 'M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3zM9 12l2 2 4-4',
+  lock: 'M8 10V7a4 4 0 0 1 8 0v3',
+  factory: 'M3 20V9l6 4V9l6 4V4h5v16z',
+};
+---
+
+<Base title={title} description={description}>
+  <!-- ========== 1 · HERO ==========
+       Full-bleed bike shot masked into the right of the frame, a crimson
+       bloom behind it, and the headline holding the left. -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="hero__photo" style={bikePhoto ? "--photo:url(/photos/bike-t01.jpg)" : undefined} aria-hidden="true"></div>
+    <div class="hero__bloom" aria-hidden="true"></div>
+    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="hero__floor" aria-hidden="true"></div>
+
+    <div class="page hero__body">
+      <p class="eyebrow" data-reveal>Electric dirt bikes, factory direct</p>
+
+      <h1 class="hero__title" id="hero-title" data-reveal>
+        8 kW of dirt bike.<br /><span class="hero__title-alt">55 kg of it.</span>
+      </h1>
+
+      <p class="hero__lede" data-reveal>
+        The T-01 runs a 60V central motor that peaks at 8,000 W, carries a
+        150 kg rated load, and still weighs less than every bike it is
+        cross-shopped against.
+      </p>
+
+      <div class="cluster hero__actions" data-reveal>
+        <a class="btn btn--primary" href="/products/t-01">Configure the T-01</a>
+        <a class="btn btn--ghost" href="/products/t-01#compare">Compare models</a>
+      </div>
+
+      <dl class="hero__rail" data-reveal>
+        {heroStats.map((s) => (
+          <div class="hero__stat">
+            <dt>{s.label}</dt>
+            <dd>{s.value}</dd>
+          </div>
+        ))}
+        <!-- TODO(asset): the design reserves this corner for the looping
+             hero video. Drop a <video autoplay muted loop playsinline>
+             into .hero__photo and delete this note. -->
+        <p class="hero__note">Looping hero video goes here</p>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ========== 2 · VALUE PROPS ========== -->
+  <section class="props" aria-label="What every order includes">
+    <ul class="page props__list">
+      {valueProps.map((p) => (
+        <li class="props__item" data-reveal>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            {p.icon === 'globe' && <circle cx="12" cy="12" r="9" />}
+            {p.icon === 'lock' && <rect x="4" y="10" width="16" height="10" rx="2" />}
+            <path d={icons[p.icon]} />
+          </svg>
+          <span>{p.label}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- ========== 3 · ABOUT / TRUST ========== -->
+  <section class="section about" id="about" aria-labelledby="about-title">
+    <div class="page about__grid">
+      <div data-reveal>
+        <p class="eyebrow">Who rides a Panquire</p>
+        <h2 id="about-title" class="about__title">Built by riders, sold without the middle man</h2>
+        <p class="about__text">
+          We started in a two-bay workshop stripping every light electric dirt
+          bike we could get hold of, and kept finding the same trade: real
+          suspension and real power, or a price a rider could actually justify.
+          Never both.
+        </p>
+        <p class="about__text">
+          Every frame is assembled on our own line and shipped straight from
+          the factory floor. That is why an 8 kW bike lands at the price of a
+          mid-range commuter.
+        </p>
+        <p class="about__cta"><a class="btn btn--ghost" href="/about">About us</a></p>
+      </div>
+
+      <figure class="about__figure" data-reveal>
+        <div class="about__glow" aria-hidden="true"></div>
+        {riderPhoto ? (
+          <img class="about__photo" src="/photos/rider-liam.png" alt="Rider on a blacked-out bike at dusk" width="797" height="682" loading="lazy" />
+        ) : (
+          <div class="about__photo slot">Rider photograph</div>
+        )}
+      </figure>
+    </div>
+  </section>
+
+  <!-- ========== 4 · MARQUEE ==========
+       A spec ticker, not decoration: every word in it is a figure from
+       the sheet. -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      {[0, 1].map(() => (
+        <div class="marquee__run">
+          {marquee.map((m) => (
+            <span class={m.accent ? 'marquee__word marquee__word--accent' : 'marquee__word'}>{m.text}</span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- ========== 5 · FEATURED PRODUCTS ==========
+       The renders carry the whole composition — ground, dirt, copy and
+       nameplates — so only the bike moves. The same copy lives in the HTML
+       for search engines and screen readers, and real buttons sit over the
+       painted nameplates. The stage controller in the script below runs it. -->
+  <section class="showcase" id="bikes" aria-label="Featured products">
+    <div class="stage" data-stage data-baked-copy>
+      <div class="stage__frame" aria-hidden="true">
+        {stills.map((src) => (
+          <img
+            class="stage__still"
+            src={src}
+            data-src={src}
+            alt=""
+            width="1112"
+            height="834"
+            loading="lazy"
+            decoding="async"
+            hidden={src !== lead.media.rest}
+            style={fitStyle(src)}
+          />
+        ))}
+        {clips.map((src) => (
+          <video
+            class="stage__video"
+            src={src}
+            data-src={src}
+            data-in={inPoints.get(src)}
+            style={fitStyle(src)}
+            muted
+            playsinline
+            preload="none"
+            disablepictureinpicture
+            disableremoteplayback
+            tabindex="-1"
+          ></video>
+        ))}
+      </div>
+
+      <div class="stage__zone" data-stage-zone aria-hidden="true"></div>
+
+      <div class="stage__copy" aria-live="polite">
+        <p class="stage__brand">
+          <span class="stage__brand-name">{featured.brand.name}</span>
+          <span class="stage__brand-tagline">{featured.brand.tagline}</span>
+        </p>
+        {featured.models.map((m, i) => (
+          <div class="stage__model" data-copy={m.id} hidden={i !== 0}>
+            <h2 class="stage__label">{m.label}</h2>
+            <p class="stage__blurb">{m.blurb}</p>
+            <dl class="stage__specs">
+              {m.specs.map(([term, value]) => (
+                <div><dt>{term}</dt><dd>{value}</dd></div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+
+      <div class="stage__switch" role="group" aria-label="Choose a model">
+        {featured.models.map((m, i) => (
+          <button
+            class="stage__plate"
+            type="button"
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            data-switch={m.id}
+            data-enter={m.media.enter}
+            data-out={m.media.out}
+            data-empty={m.media.empty}
+            data-rest={m.media.rest}
+            data-enter-settle={m.media.enterSettle}
+          >
+            <span class="stage__plate-name">{m.id}</span>
+          </button>
+        ))}
+      </div>
+
+      <script is:inline>
+        // Runs during parse, before first paint. With motion allowed the
+        // stage starts empty, so the entrance plays instead of the bike
+        // blinking out and riding back in. If the controller never takes
+        // over, the resting frame comes back.
+        (function (stage) {
+          if (!window.matchMedia || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+          var lead = stage.querySelector('[data-switch]');
+          var show = function (src) {
+            stage.querySelectorAll('.stage__still').forEach(function (img) {
+              img.hidden = img.getAttribute('data-src') !== src;
+            });
+          };
+          stage.setAttribute('data-pending', '');
+          show(lead.getAttribute('data-empty'));
+          setTimeout(function () {
+            if (!stage.hasAttribute('data-pending')) return;
+            stage.removeAttribute('data-pending');
+            show(lead.getAttribute('data-rest'));
+          }, 6000);
+        })(document.currentScript.parentElement);
+      </script>
+    </div>
+  </section>
+
+  <!-- ========== 6 · TESTIMONIALS ========== -->
+  <section class="section owners" id="owners" aria-labelledby="owners-title">
+    <div class="page">
+      <div class="owners__head" data-reveal>
+        <p class="eyebrow">Testimonials</p>
+        <h2 id="owners-title">Owners, not reviewers</h2>
+      </div>
+
+      <ul class="owners__list">
+        {testimonials.map((t, i) => (
+          <li class="review" data-reveal data-reveal-delay={i * 70}>
+            {t.photo && hasAsset(t.photo) ? (
+              <img class="review__photo" src={t.photo} alt={t.alt} width="797" height="682" loading="lazy" />
+            ) : (
+              <div class="review__photo slot">Owner photograph</div>
+            )}
+
+            <p class="review__rating" aria-label={`Rated ${t.rating} out of 5`}>
+              <span aria-hidden="true">{'★'.repeat(t.rating)}</span>
+            </p>
+
+            <blockquote class="review__quote"><p>{t.quote}</p></blockquote>
+
+            <footer class="review__by">
+              {t.avatar && hasAsset(t.avatar) ? (
+                <img class="review__avatar" src={t.avatar} alt="" width="112" height="112" loading="lazy" />
+              ) : (
+                <span class="review__initials" aria-hidden="true">{t.initials}</span>
+              )}
+              <span class="review__name">{t.name}, verified owner</span>
+            </footer>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== 7 · LEAD CAPTURE ==========
+       One field. The comparison goes to the inbox, not onto the page. -->
+  <section class="capture" id="compare" aria-labelledby="capture-title">
+    <div class="capture__photo" style={bikePhoto ? "--photo:url(/photos/bike-t01.jpg)" : undefined} aria-hidden="true"></div>
+    <div class="capture__scrim" aria-hidden="true"></div>
+
+    <div class="capture__body">
+      <p class="eyebrow eyebrow--accent capture__eyebrow" data-reveal>Direct comparison</p>
+      <h2 id="capture-title" data-reveal>How the T-01 measures up against the top 7</h2>
+      <p class="capture__lede" data-reveal>
+        We put our full spec sheet next to the seven bikes people cross-shop
+        us with, including the numbers that do not flatter us. It goes to
+        your inbox, not on this page.
+      </p>
+
+      <!-- TODO(backend): point action at the list provider before launch. -->
+      <form class="capture__form" data-capture data-reveal method="post" action="#">
+        <label class="visually-hidden" for="lead-email">Email address</label>
+        <input
+          class="input capture__input"
+          id="lead-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="you@email.com"
+        />
+        <button class="btn btn--primary" type="submit">Send the comparison</button>
+      </form>
+
+      <p class="capture__done" data-capture-done hidden role="status">
+        Check your inbox. The comparison is on its way.
+      </p>
+
+      <p class="capture__note">One email, no list, unsubscribe in a click.</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Lead capture. The design shows a confirmation in place of the form;
+  // this swaps the two until the list provider is wired up.
+  const form = document.querySelector<HTMLFormElement>('[data-capture]');
+  const done = document.querySelector<HTMLElement>('[data-capture-done]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    form.hidden = true;
+    if (done) done.hidden = false;
+  });
+
+  /* ============================================================
+     Featured-products stage controller.
+
+     Each model has two pre-rendered clips with the whole composition
+     baked in. Three rules keep every handover invisible:
+       1. an incoming clip is painted *under* the live one and raised only
+          once its first frame is on screen — never an empty frame;
+       2. the matching still is swapped in underneath while a clip covers
+          it, so a clip ending just uncovers identical pixels;
+       3. clips start at measured in-points, skipping the static frames
+          the renders open with.
+     A click mid-clip is remembered and the stage lands on the last model
+     asked for. During an entrance it waits for the bike to settle, then
+     cuts straight to the departure.
+     ============================================================ */
+  const stage = document.querySelector<HTMLElement>('[data-stage]');
+
+  if (stage) {
+    const videos = [...stage.querySelectorAll<HTMLVideoElement>('.stage__video')];
+    const stills = [...stage.querySelectorAll<HTMLImageElement>('.stage__still')];
+    const buttons = [...stage.querySelectorAll<HTMLButtonElement>('[data-switch]')];
+    const copies = [...stage.querySelectorAll<HTMLElement>('[data-copy]')];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const clip = (src: string) => videos.find((v) => v.dataset.src === src)!;
+    const media = (id: string) => {
+      const d = buttons.find((b) => b.dataset.switch === id)!.dataset;
+      return {
+        enter: clip(d.enter!),
+        out: clip(d.out!),
+        empty: d.empty!,
+        rest: d.rest!,
+        settle: Number(d.enterSettle),
+      };
+    };
+    const inPoint = (v: HTMLVideoElement) => Number(v.dataset.in) || 0;
+
+    // `shown` is the model on stage — arriving, resting or departing.
+    // `wanted` is the last one asked for. Buttons and copy follow `wanted`
+    // at once; the stage catches up at its own pace.
+    let shown = buttons[0].dataset.switch!;
+    let wanted = shown;
+    let phase: 'waiting' | 'entering' | 'rest' | 'leaving' = stage.hasAttribute('data-pending')
+      ? 'waiting'
+      : 'rest';
+    let run = 0; // bumped by a fallback, so promises from an abandoned run stay quiet
+    stage.removeAttribute('data-pending');
+
+    const showStill = (src: string) =>
+      stills.forEach((img) => {
+        img.hidden = img.dataset.src !== src;
+      });
+
+    function reflect(id: string) {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.switch === id)));
+      copies.forEach((c) => {
+        c.hidden = c.dataset.copy !== id;
+      });
+    }
+
+    /** Starts loading a clip (once) and resolves when it can show a frame. */
+    const ready = (v: HTMLVideoElement) =>
+      new Promise<void>((done) => {
+        if (v.preload !== 'auto') {
+          v.preload = 'auto';
+          v.load();
+        }
+        if (v.readyState >= 2) return done();
+        v.addEventListener('loadeddata', () => done(), { once: true });
+      });
+
+    const seek = (v: HTMLVideoElement, t: number) =>
+      new Promise<void>((done) => {
+        if (Math.abs(v.currentTime - t) < 0.02) return done();
+        v.addEventListener('seeked', () => done(), { once: true });
+        v.currentTime = t;
+      });
+
+    /** Resolves once the clip has put its first new frame on screen. */
+    const presented = (v: HTMLVideoElement) =>
+      new Promise<void>((done) => {
+        if ('requestVideoFrameCallback' in v) v.requestVideoFrameCallback(() => done());
+        else v.addEventListener('playing', () => requestAnimationFrame(() => done()), { once: true });
+      });
+
+    const ended = (v: HTMLVideoElement) =>
+      new Promise<void>((done) => v.addEventListener('ended', () => done(), { once: true }));
+
+    const within = (ms: number) => new Promise<false>((r) => setTimeout(() => r(false), ms));
+
+    const live = () => videos.find((v) => v.dataset.layer === 'live');
+
+    function retire(v: HTMLVideoElement) {
+      delete v.dataset.layer;
+      v.pause();
+      void seek(v, inPoint(v));
+    }
+
+    /** Paints a clip under the live layer, plays it, raises it once its first frame is up. */
+    async function cue(v: HTMLVideoElement) {
+      const token = run;
+      await ready(v);
+      await seek(v, inPoint(v));
+      if (token !== run) return false;
+      v.dataset.layer = 'armed';
+      const firstFrame = presented(v);
+      await v.play();
+      await firstFrame;
+      if (token !== run) return false;
+      const previous = live();
+      v.dataset.layer = 'live';
+      if (previous && previous !== v) retire(previous);
+      return true;
+    }
+
+    /** Autoplay refused, a clip that never loads: settle on the resting frame. */
+    function toRest(id: string) {
+      run++;
+      videos.forEach((v) => {
+        if (v.dataset.layer) retire(v);
+      });
+      shown = id;
+      showStill(media(id).rest);
+      phase = 'rest';
+    }
+
+    async function enter(id: string) {
+      const m = media(id);
+      shown = id;
+      phase = 'entering';
+      showStill(m.empty);
+      if (!(await Promise.race([cue(m.enter).catch(() => false), within(4000)]))) return toRest(wanted);
+      showStill(m.rest); // underneath the clip: its last frame uncovers this
+
+      // Play to the end — unless another model is wanted, in which case
+      // leave as soon as the bike has settled.
+      await new Promise<void>((done) => {
+        const settled = () => {
+          if (wanted !== shown && m.enter.currentTime >= m.settle) finish();
+        };
+        const finish = () => {
+          m.enter.removeEventListener('timeupdate', settled);
+          m.enter.removeEventListener('ended', finish);
+          done();
+        };
+        m.enter.addEventListener('timeupdate', settled);
+        m.enter.addEventListener('ended', finish);
+      });
+
+      phase = 'rest';
+      if (wanted !== shown) return leave();
+      retire(m.enter); // ended: the resting still underneath takes over
+    }
+
+    async function leave() {
+      phase = 'leaving';
+      const out = media(shown).out;
+      if (!(await cue(out).catch(() => false))) return toRest(wanted);
+      await ended(out);
+      // Whichever model is wanted by now arrives: clicks during the departure count.
+      await enter(wanted); // raises the entrance over the held last frame, then retires `out`
+    }
+
+    function switchTo(next: string) {
+      if (next === wanted) return;
+      wanted = next;
+      reflect(next);
+      if (reduce) {
+        shown = next;
+        return showStill(media(next).rest);
+      }
+      if (phase === 'waiting') {
+        shown = next; // the entrance has not played yet, so it plays this model
+        return showStill(media(next).empty);
+      }
+      if (phase === 'rest') void leave();
+      // Entering or leaving: the running sequence reads `wanted` when it gets there.
+    }
+
+    buttons.forEach((b) => b.addEventListener('click', () => switchTo(b.dataset.switch!)));
+
+    if (!reduce && 'IntersectionObserver' in window) {
+      // Warm every clip and still a screen and a half before the stage.
+      const near = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          near.disconnect();
+          videos.forEach((v) => ready(v).then(() => seek(v, inPoint(v))));
+          stills.forEach((img) => {
+            img.loading = 'eager';
+            img.decode().catch(() => {});
+          });
+        },
+        { rootMargin: '150% 0px' }
+      );
+      near.observe(stage);
+
+      if (phase === 'waiting') {
+        const seen = new IntersectionObserver(
+          (entries) => {
+            if (!entries.some((e) => e.isIntersecting)) return;
+            seen.disconnect();
+            void enter(wanted);
+          },
+          { threshold: 0.6 }
+        );
+        seen.observe(stage.querySelector<HTMLElement>('[data-stage-zone]')!);
+      }
+    } else if (phase === 'waiting') {
+      toRest(wanted);
+    }
+  }
+</script>
+
+<style>
+  /* ============================================================
+     1 · Hero
+     ============================================================ */
+  .hero {
+    position: relative;
+    min-height: 92svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    isolation: isolate;
+    background: radial-gradient(120% 90% at 70% 30%, #2A2A2C 0%, var(--bg) 55%, var(--bg-deep) 100%);
+  }
+  .hero__photo,
+  .hero__bloom,
+  .hero__scrim,
+  .hero__floor { position: absolute; inset: 0; z-index: -1; }
+
+  /* The photograph is handed in as --photo only when the file exists, so a
+     missing export degrades to the gradient ground instead of a broken URL. */
+  .hero__photo {
+    background-image: var(--photo, none);
+    background-size: min(43.75rem, 64%) auto;
+    background-position: 118% 66%;
+    background-repeat: no-repeat;
+    -webkit-mask-image: radial-gradient(68% 62% at 66% 60%, #000 42%, transparent 88%);
+    mask-image: radial-gradient(68% 62% at 66% 60%, #000 42%, transparent 88%);
+  }
+  .hero__bloom {
+    inset: 8% auto auto -10%;
+    width: 70%;
+    height: 70%;
+    background: var(--grad-glow);
+    filter: blur(20px);
+    animation: hero-pulse var(--dur-pulse) ease-in-out infinite;
+    pointer-events: none;
+  }
+  .hero__scrim {
+    background: linear-gradient(90deg, var(--a-carbon-92) 0%, rgb(18 18 20 / 0.82) 38%, rgb(18 18 20 / 0.15) 72%, rgb(18 18 20 / 0.7) 100%);
+  }
+  .hero__floor {
+    background: linear-gradient(0deg, var(--bg) 0%, rgb(26 26 26 / 0) 34%);
+  }
+  @keyframes hero-pulse {
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 0.85; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__bloom { animation: none; opacity: 0.7; }
+  }
+
+  .hero__body {
+    position: relative;
+    z-index: var(--z-base);
+    padding-block: calc(var(--header-h) + var(--space-9)) var(--space-7);
+  }
+  .hero__title {
+    margin-block-start: var(--space-6);
+    max-width: 15ch;
+    font-size: var(--step-6);
+  }
+  /* The second line takes the gradient, so the type itself carries the
+     accent instead of a coloured word inside a sentence. */
+  .hero__title-alt {
+    background: var(--grad-headline);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero__lede {
+    margin-block-start: var(--space-6);
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    color: var(--text-muted);
+  }
+  .hero__actions { margin-block-start: var(--space-7); gap: var(--space-4); }
+
+  .hero__rail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-4) var(--space-9);
+    margin-block-start: var(--space-9);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--a-white-09);
+  }
+  .hero__stat dt {
+    font-size: var(--step--2);
+    font-weight: var(--weight-semi);
+    letter-spacing: var(--tracking-mark);
+    text-transform: uppercase;
+    color: var(--text-label);
+  }
+  .hero__stat dd {
+    margin-block-start: var(--space-2);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero__note {
+    margin-inline-start: auto;
+    font-size: var(--step--2);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-mark);
+    text-transform: uppercase;
+    color: var(--text-label);
+  }
+
+  /* ============================================================
+     2 · Value props
+     ============================================================ */
+  .props {
+    border-block: 1px solid var(--line-hairline);
+    background: var(--grad-band);
+  }
+  .props__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12.375rem, 1fr));
+  }
+  .props__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-6) var(--space-6) 0;
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: var(--weight-semi);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: #E6E4E4;
+  }
+  .props__item svg { flex: none; color: var(--accent); }
+  .props__item + .props__item {
+    padding-inline-start: var(--space-6);
+    border-inline-start: 1px solid var(--line-hairline);
+  }
+
+  /* ============================================================
+     3 · About
+     ============================================================ */
+  .about { background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 60%, var(--brand-ink-deep) 100%); }
+  .about__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: clamp(var(--space-7), 6vw, 5.5rem);
+    align-items: center;
+  }
+  .about__title { margin-block: var(--space-5) var(--space-5); }
+  .about__text { color: var(--text-muted); max-width: var(--measure); }
+  .about__text + .about__text { margin-block-start: var(--space-4); }
+  .about__cta { margin-block-start: var(--space-7); }
+
+  .about__figure { position: relative; margin: 0; }
+  .about__glow {
+    position: absolute;
+    inset: -8% -6%;
+    background: radial-gradient(circle at 60% 40%, rgb(220 20 60 / 0.3), rgb(220 20 60 / 0) 68%);
+    filter: blur(14px);
+  }
+  .about__photo {
+    position: relative;
+    aspect-ratio: 797 / 682;
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--a-white-09);
+    box-shadow: var(--elevation-photo);
+  }
+
+  /* ============================================================
+     4 · Marquee
+     ============================================================ */
+  .marquee {
+    overflow: hidden;
+    border-block: 1px solid var(--line-hairline);
+    background: linear-gradient(90deg, var(--brand-ink-deep), #231A1D 50%, var(--brand-ink-deep));
+    padding-block: var(--space-4);
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--dur-marquee) linear infinite;
+    will-change: transform;
+  }
+  .marquee__run {
+    display: flex;
+    gap: 2.75rem;
+    padding-inline-end: 2.75rem;
+  }
+  .marquee__word {
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+  .marquee__word--accent { color: var(--accent); }
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track { animation: none; }
+  }
+
+  /* ============================================================
+     5 · Featured products — the video stage
+
+     .stage__frame holds the pixels, bottom to top:
+       stills   the resting and empty frames, lifted from the enter clip
+       videos   hidden until cued; [data-layer=armed] paints beneath
+                [data-layer=live], so a handover never shows a gap
+     The frame is feathered on every edge and the section paints the
+     renders' own ground behind it, so the dirt reads as part of the page
+     rather than a rectangle placed on top of it.
+     ============================================================ */
+  .showcase {
+    position: relative;
+    background: var(--stage-ground);
+  }
+
+  .stage {
+    /* Feather widths — calibration knobs. Kept clear of the painted copy
+       (4% in from the left) and below the bike's wheels (91% down). */
+    --feather-x: 3%;
+    --feather-top: 4%;
+    --feather-foot: 9%;
+
+    position: relative;
+    width: min(100%, var(--stage-max));
+    margin-inline: auto;
+    aspect-ratio: var(--stage-ratio);
+    container-type: inline-size;
+  }
+
+  .stage__frame {
+    --feather:
+      linear-gradient(to right, transparent, #000 var(--feather-x), #000 calc(100% - var(--feather-x)), transparent),
+      linear-gradient(to bottom, transparent, #000 var(--feather-top), #000 calc(100% - var(--feather-foot)), transparent);
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    -webkit-mask-image: var(--feather);
+    -webkit-mask-composite: source-in;
+    mask-image: var(--feather);
+    mask-composite: intersect;
+  }
+
+  .stage__still,
+  .stage__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    /* Alignment between separate renders, measured frame against frame and
+       set per clip as enterFit in src/data/site.ts. */
+    transform: scale(var(--fit-scale, 1)) translate(var(--fit-x, 0%), var(--fit-y, 0%));
+  }
+  .stage__still { z-index: 1; }
+  .stage__video { z-index: 2; visibility: hidden; }
+  .stage__video[data-layer='armed'] { visibility: visible; }
+  .stage__video[data-layer='live'] { visibility: visible; z-index: 3; }
+
+  /* No player chrome, ever — including the play glyph iOS paints over a clip
+     it refused to autoplay. */
+  .stage__video::-webkit-media-controls,
+  .stage__video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+  }
+
+  /* The bike's resting band. The entrance waits for this to be on screen,
+     not merely the top edge of a stage taller than most laptop screens. */
+  .stage__zone {
+    position: absolute;
+    inset: 46.5% 24% 9.6% 26.7%;
+    pointer-events: none;
+  }
+
+  /* ---------- Copy ----------
+     Placed to the renders' own layout (measured from t01-rest.jpg) and sized
+     in container units, so it tracks the frame at any width. */
+  .stage__copy { position: absolute; inset: 0; pointer-events: none; }
+  .stage__brand {
+    position: absolute;
+    left: 6.8%;
+    top: 5.5%;
+    display: flex;
+    align-items: baseline;
+    gap: 1.2cqw;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+  }
+  .stage__brand-name { font-size: 3.9cqw; font-weight: var(--weight-black); letter-spacing: -0.02em; }
+  .stage__brand-tagline { font-size: 1.5cqw; font-weight: var(--weight-semi); letter-spacing: 0.05em; }
+
+  .stage__model { position: absolute; left: 4.1%; top: 60%; width: 30%; }
+  .stage__label {
+    font-size: 1.9cqw;
+    font-weight: var(--weight-black);
+    letter-spacing: 0.02em;
+    color: var(--accent-2);
+  }
+  .stage__blurb {
+    margin-block-start: 0.8cqw;
+    max-width: 26cqw;
+    font-size: 0.95cqw;
+    line-height: 1.45;
+    color: var(--text-muted);
+  }
+  .stage__specs { display: flex; gap: 2.6cqw; margin-block-start: 1.6cqw; }
+  .stage__specs dt { font-size: 0.72cqw; color: var(--text-label); }
+  .stage__specs dd {
+    margin-block-start: 0.3cqw;
+    font-family: var(--font-display);
+    font-size: 1.05cqw;
+    font-weight: var(--weight-bold);
+  }
+
+  /* ---------- Nameplates ----------
+     Real buttons over the painted plates. The hit areas split at the
+     midpoint between the two plates, so neither steals the other's taps. */
+  .stage__switch { position: absolute; inset: 0; pointer-events: none; }
+  .stage__plate {
+    position: absolute;
+    left: 68%;
+    width: 29%;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .stage__plate[data-switch='T-01'] { top: 48%; height: 14.4%; }
+  .stage__plate[data-switch='T-02'] { top: 62.4%; height: 13.6%; }
+  .stage__plate:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus-ring);
+    outline-offset: -0.4cqw;
+  }
+  .stage__plate-name {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: var(--weight-black);
+    font-size: 4.6cqw;
+    letter-spacing: -0.03em;
+  }
+
+  /* The renders already paint the copy and nameplates, so the HTML stays for
+     search engines and screen readers without being drawn a second time.
+     Remove data-baked-copy from the stage once the clips ship without text. */
+  .stage[data-baked-copy] .stage__copy,
+  .stage[data-baked-copy] .stage__plate-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+     6 · Testimonials
+     ============================================================ */
+  .owners { background: linear-gradient(180deg, var(--bg), var(--brand-ink-lift)); }
+  .owners__head { margin-block-end: clamp(var(--space-7), 4.4vw, 3.625rem); }
+  .owners__head h2 { margin-block-start: var(--space-5); }
+
+  .owners__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+    gap: var(--space-5);
+  }
+  .review {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-3);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--a-white-13);
+    background: var(--grad-review);
+    box-shadow: var(--elevation-card);
+  }
+  .review__photo {
+    width: 100%;
+    aspect-ratio: 342 / 296;
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+  }
+  .review__rating {
+    margin: var(--space-4) var(--space-1) var(--space-3);
+    color: var(--accent-2);
+    font-size: var(--step-1);
+    letter-spacing: 0.05em;
+  }
+  /* Owner quotes are set as display type — the design treats the words
+     themselves as the graphic element on these cards. */
+  .review__quote {
+    flex: 1;
+    margin-inline: var(--space-1);
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: var(--step-2);
+    line-height: var(--leading-snug);
+    text-transform: uppercase;
+  }
+  .review__by {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-5) var(--space-1) var(--space-2);
+  }
+  .review__avatar,
+  .review__initials {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .review__initials {
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #3A3F48, #1E2128);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: var(--weight-bold);
+    color: var(--text-muted);
+  }
+  .review__name {
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ============================================================
+     7 · Lead capture
+     ============================================================ */
+  .capture { position: relative; isolation: isolate; overflow: hidden; background: var(--bg-well); }
+  .capture__photo,
+  .capture__scrim { position: absolute; inset: 0; z-index: -1; }
+  .capture__photo {
+    background-image: var(--photo, none);
+    opacity: 0.35;
+    background-size: cover;
+    background-position: center 40%;
+  }
+  .capture__scrim {
+    background:
+      radial-gradient(70% 80% at 50% 50%, var(--a-crimson-24), rgb(20 20 22 / 0) 70%),
+      linear-gradient(180deg, rgb(20 20 22 / 0.92), rgb(20 20 22 / 0.78) 45%, rgb(20 20 22 / 0.96));
+  }
+
+  .capture__body {
+    position: relative;
+    width: min(100% - var(--gutter) * 2, 47.5rem);
+    margin-inline: auto;
+    padding-block: var(--section-y);
+    text-align: center;
+  }
+  .capture__eyebrow { justify-content: center; margin-block-end: var(--space-5); }
+  .capture__lede {
+    margin: var(--space-5) auto 0;
+    max-width: var(--measure);
+    color: var(--text-muted);
+  }
+  .capture__form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: center;
+    max-width: 33.75rem;
+    margin: var(--space-7) auto 0;
+  }
+  .capture__input { flex: 1 1 16.25rem; min-width: 0; }
+  .capture__done {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-7);
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgb(220 20 60 / 0.5);
+    background: var(--accent-soft);
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .capture__note {
+    margin-block-start: var(--space-4);
+    font-size: var(--step--1);
+    letter-spacing: 0.06em;
+    color: var(--text-label);
+  }
+</style>

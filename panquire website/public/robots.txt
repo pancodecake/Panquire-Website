@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# AI search crawlers are allowed deliberately: blocking them means those
+# assistants cannot cite panquire.com as a source.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Training-only bulk crawler, no citation benefit.
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://panquire.com/sitemap.xml

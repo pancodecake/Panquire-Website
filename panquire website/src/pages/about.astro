@@ -1,0 +1,231 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+const title = 'About Panquire';
+const description =
+  'Who Panquire is, why the company exists, and who is building the T-01 — the story behind a factory-direct electric dirt bike brand.';
+
+/*
+ * Body copy is lorem ipsum by instruction: the About page brief asks for
+ * placeholder text under real section headings. Headings and captions are
+ * real, so the structure can be reviewed before the copy is written.
+ */
+const lorem =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
+const lorem2 =
+  'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+
+const chapters = [
+  {
+    id: 'purpose',
+    eyebrow: 'What this is, and who it is for',
+    title: 'A bike for the rider who kept doing the maths',
+    body: [lorem, lorem2],
+  },
+  {
+    id: 'credibility',
+    eyebrow: 'Is this a real company',
+    title: `${site.legalName}, not a drop-shipping page`,
+    body: [lorem, lorem2],
+  },
+  {
+    id: 'proof',
+    eyebrow: 'Can we actually build it',
+    title: 'The bike exists, and the spec sheet is published in full',
+    body: [lorem, lorem2],
+  },
+  {
+    id: 'timing',
+    eyebrow: 'Why now',
+    title: 'The gap opened when the incumbents stopped competing on price',
+    body: [lorem, lorem2],
+  },
+  {
+    id: 'founder',
+    eyebrow: 'Who is building it',
+    title: 'From the Xiaomi scooter team to a workshop full of stripped frames',
+    body: [lorem, lorem2],
+  },
+];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: title,
+  description,
+  url: `${site.url}/about`,
+  about: { '@id': `${site.url}/#organization` },
+  dateModified: site.updated,
+};
+---
+
+<Base title={title} description={description} schema={schema}>
+  <div class="story">
+    {chapters.map((c, i) => (
+      <section class="chapter" id={c.id} aria-labelledby={`${c.id}-title`} data-reveal>
+        {/* TODO(asset): chapter background photograph. The fixed attachment
+            is what produces the parallax; the two overlays do the blending. */}
+        <div class="chapter__bg" data-slot={c.id} aria-hidden="true"></div>
+        <div class="chapter__tint" aria-hidden="true"></div>
+        <div class="chapter__fade" aria-hidden="true"></div>
+
+        <div class="page chapter__body">
+          <p class="chapter__eyebrow">{c.eyebrow}</p>
+          {/* The opening chapter carries the page h1; the rest are h2. */}
+          {i === 0 ? (
+            <h1 class="chapter__title" id={`${c.id}-title`}>{c.title}</h1>
+          ) : (
+            <h2 class="chapter__title" id={`${c.id}-title`}>{c.title}</h2>
+          )}
+          {c.body.map((p) => <p class="chapter__text">{p}</p>)}
+        </div>
+
+        {i < chapters.length - 1 && (
+          <a class="scroll-cue" href={`#${chapters[i + 1].id}`}>
+            <span class="visually-hidden">Next: {chapters[i + 1].eyebrow}</span>
+            <span class="scroll-cue__line" aria-hidden="true"></span>
+          </a>
+        )}
+      </section>
+    ))}
+  </div>
+
+  <section class="section" aria-labelledby="about-cta">
+    <div class="page">
+      <h2 id="about-cta">Next step</h2>
+      <p class="muted about__cta-copy">
+        The story is the background. The specification is the argument.
+      </p>
+      <p class="cluster about__cta-actions">
+        <a class="btn btn--primary" href="/products/t-01">See the T-01</a>
+        <a class="btn btn--ghost" href="/partners">Work with us</a>
+      </p>
+      <p class="muted about__updated">Last updated {site.updated}.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ============================================================
+     About — five chapters, each with a fixed background that
+     fades in as the chapter enters the viewport. Overlay stack,
+     bottom to top:
+       .chapter__bg    the photograph, fixed for parallax
+       .chapter__tint  crimson-to-carbon wash for legibility
+       .chapter__fade  bottom 20% fade into the next chapter
+     ============================================================ */
+
+  /* The chapter opts out of the site-wide fade-up: an opacity transition on
+     the section would create a stacking context and break the fixed
+     background. It only wants the .is-in class the observer adds. */
+  .js .chapter[data-reveal] { opacity: 1; transform: none; transition: none; }
+
+  .chapter {
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    padding-block: var(--section-y-lg);
+    overflow: hidden;
+  }
+
+  .chapter__bg,
+  .chapter__tint,
+  .chapter__fade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .chapter__bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    /* Stand-in until the photographs land. */
+    background-image:
+      radial-gradient(60% 60% at 30% 40%, var(--a-crimson-24), transparent 70%),
+      linear-gradient(160deg, var(--brand-carbon-lift), var(--bg-well));
+    opacity: 0;
+    transform: scale(1.04);
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+  }
+  .chapter.is-in .chapter__bg { opacity: 1; transform: none; }
+
+  .chapter__tint {
+    background: linear-gradient(115deg, var(--a-carbon-92) 18%, var(--a-carbon-72) 62%, transparent 100%);
+  }
+
+  /* The 20% fade zone: each chapter dissolves into the page ground so the
+     joins between backgrounds are never visible as a hard edge. */
+  .chapter__fade {
+    background:
+      linear-gradient(to bottom, var(--bg) 0%, transparent 12%),
+      linear-gradient(to top, var(--bg) 0%, transparent 20%);
+  }
+
+  .chapter__body { max-width: var(--width-prose); }
+  .chapter__eyebrow {
+    color: var(--text-muted);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-eyebrow);
+  }
+  .chapter__title { font-size: var(--step-4); margin-block: var(--space-4) var(--space-6); }
+  .chapter__text { color: var(--text-muted); max-width: var(--measure); }
+  .chapter__text + .chapter__text { margin-block-start: var(--space-5); }
+
+  /* Content fades up while the background fades in. Same trigger class,
+     so the two land together rather than in sequence. */
+  .chapter__body > * {
+    opacity: 0;
+    transform: translateY(var(--space-5));
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+  }
+  .chapter.is-in .chapter__body > * { opacity: 1; transform: none; }
+  .chapter.is-in .chapter__body > :nth-child(2) { transition-delay: 80ms; }
+  .chapter.is-in .chapter__body > :nth-child(3) { transition-delay: 160ms; }
+  .chapter.is-in .chapter__body > :nth-child(4) { transition-delay: 240ms; }
+
+  /* ---------- Scroll cue ---------- */
+  .scroll-cue {
+    position: absolute;
+    inset-block-end: var(--space-6);
+    left: 50%;
+    translate: -50% 0;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    z-index: var(--z-float);
+  }
+  .scroll-cue__line {
+    display: block;
+    width: 1px;
+    height: var(--space-6);
+    background: linear-gradient(to bottom, transparent, var(--accent));
+    animation: cue 2.4s var(--ease-out) infinite;
+    transform-origin: bottom;
+  }
+  @keyframes cue {
+    0%, 100% { opacity: 0.25; transform: scaleY(0.6); }
+    50%      { opacity: 1;    transform: scaleY(1); }
+  }
+
+  .about__cta-copy { margin-block-start: var(--space-4); max-width: var(--measure); }
+  .about__cta-actions { margin-block-start: var(--space-6); }
+  .about__updated { margin-block-start: var(--space-7); font-size: var(--step--1); }
+
+  /* ---------- Mobile and reduced motion ---------- */
+  @media (max-width: 60rem) {
+    /* Fixed attachment is unreliable on mobile browsers and janky where it
+       works. Chapters scroll normally instead; the crossfade still runs. */
+    .chapter__bg { background-attachment: scroll; }
+    .chapter { min-height: auto; padding-block: var(--section-y); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chapter__bg { transform: none; }
+    .scroll-cue__line { animation: none; opacity: 0.7; }
+  }
+</style>

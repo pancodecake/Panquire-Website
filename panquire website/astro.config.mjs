@@ -1,0 +1,8 @@
+import { defineConfig } from 'astro/config';
+
+// Canonical origin. Drives <link rel=canonical>, sitemap and JSON-LD @id values.
+export default defineConfig({
+  site: 'https://panquire.com',
+  trailingSlash: 'never',
+  build: { inlineStylesheets: 'auto' },
+});
