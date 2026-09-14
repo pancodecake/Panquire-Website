@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { site } from '../data/site';
+import { site, withBase } from '../data/site';
 
 const title = 'About Panquire';
 const description =
@@ -98,8 +98,8 @@ const schema = {
         The story is the background. The specification is the argument.
       </p>
       <p class="cluster about__cta-actions">
-        <a class="btn btn--primary" href="/products/t-01">See the T-01</a>
-        <a class="btn btn--ghost" href="/partners">Work with us</a>
+        <a class="btn btn--primary" href={withBase('/products/t-01')}>See the T-01</a>
+        <a class="btn btn--ghost" href={withBase('/partners')}>Work with us</a>
       </p>
       <p class="muted about__updated">Last updated {site.updated}.</p>
     </div>

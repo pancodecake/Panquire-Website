@@ -1,5 +1,5 @@
 ---
-import { nav, site } from '../data/site';
+import { nav, site, withBase } from '../data/site';
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => {
   const base = href.split(/[?#]/)[0];
@@ -9,7 +9,7 @@ const isCurrent = (href: string) => {
 
 <header class="header">
   <div class="header__inner page">
-    <a class="brand" href="/">
+    <a class="brand" href={withBase('/')}>
       <span class="brand__name">{site.name}</span>
       <span class="brand__chevron" aria-hidden="true"></span>
     </a>
@@ -37,7 +37,7 @@ const isCurrent = (href: string) => {
           </li>
         ))}
       </ul>
-      <a class="btn btn--primary btn--sm nav__cta" href="/products/t-01">Reserve the T-01</a>
+      <a class="btn btn--primary btn--sm nav__cta" href={withBase('/products/t-01')}>Reserve the T-01</a>
     </nav>
   </div>
 </header>

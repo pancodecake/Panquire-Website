@@ -1,12 +1,12 @@
 ---
-import { footerColumns, site } from '../data/site';
+import { footerColumns, site, withBase } from '../data/site';
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="page footer__inner">
     <div class="footer__brand">
-      <a class="footer__logo" href="/">
+      <a class="footer__logo" href={withBase('/')}>
         <span class="footer__name">{site.name}</span>
         <span class="footer__chevron" aria-hidden="true"></span>
       </a>
@@ -32,8 +32,8 @@ const year = new Date().getFullYear();
   <div class="page">
     <div class="footer__bar">
       <ul class="footer__bar-links">
-        <li><a href="/terms">Terms of service</a></li>
-        <li><a href="/partners#affiliate-terms">Affiliate terms</a></li>
+        <li><a href={withBase('/terms')}>Terms of service</a></li>
+        <li><a href={withBase('/partners#affiliate-terms')}>Affiliate terms</a></li>
         <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
       </ul>
       <p>&copy; {year} {site.name}. All rights reserved.</p>

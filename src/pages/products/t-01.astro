@@ -11,6 +11,7 @@ import {
   pricing,
   specDisclaimer,
   panorama,
+  withBase,
 } from '../../data/site';
 import { hasAsset } from '../../data/assets';
 
@@ -79,7 +80,7 @@ const schema = [
                 <img
                   class="gallery__img lighten"
                   id="gallery-img"
-                  src="/photos/t01.jpg"
+                  src={withBase('/photos/t01.jpg')}
                   alt="Panquire T-01 electric dirt bike, three-quarter front view"
                   style={`transform:${shots[0].transform}`}
                   width="1200"
@@ -106,7 +107,7 @@ const schema = [
                 data-shot-index={i + 1}
               >
                 {photo ? (
-                  <img class="thumb__img lighten" src="/photos/t01.jpg" alt="" style={`transform:${s.transform}`} loading="lazy" width="300" height="225" />
+                  <img class="thumb__img lighten" src={withBase('/photos/t01.jpg')} alt="" style={`transform:${s.transform}`} loading="lazy" width="300" height="225" />
                 ) : (
                   <span class="thumb__img slot" aria-hidden="true"></span>
                 )}
@@ -180,7 +181,7 @@ const schema = [
           </div>
 
           <div class="panel__actions">
-            <a class="btn btn--tech" href="/partners#corporate">Request a quote</a>
+            <a class="btn btn--tech" href={withBase('/partners#corporate')}>Request a quote</a>
             <a class="btn btn--tech btn--tech-quiet" href="#specs">Download spec sheet</a>
           </div>
 
@@ -248,7 +249,7 @@ const schema = [
         <div class="bento">
           <div class="bento__cell bento__cell--tall">
             <!-- TODO(asset): central motor close-up. -->
-            <img class="bento__media media-fill" src="/photos/t01.jpg" alt="T-01 central motor and frame" width="1008" height="1056" loading="lazy" decoding="async" />
+            <img class="bento__media media-fill" src={withBase('/photos/t01.jpg')} alt="T-01 central motor and frame" width="1008" height="1056" loading="lazy" decoding="async" />
             <div class="bento__caption">
               <p class="kicker">Central motor</p>
               <p class="bento__value" data-model-text="motorShort">{t01.motorShort}</p>
@@ -278,7 +279,7 @@ const schema = [
 
           <div class="bento__cell">
             <!-- TODO(asset): rear shock detail. -->
-            <img class="bento__media media-fill" src="/photos/t01.jpg" alt="T-01 rear shock and swingarm" width="1008" height="1056" loading="lazy" decoding="async" />
+            <img class="bento__media media-fill" src={withBase('/photos/t01.jpg')} alt="T-01 rear shock and swingarm" width="1008" height="1056" loading="lazy" decoding="async" />
             <div class="bento__caption">
               <p class="kicker">Rear shock</p>
               <p class="bento__small">Adjustable oil hydraulic nitrogen</p>
@@ -300,7 +301,7 @@ const schema = [
     <section class="section-tech section-tech--gap" data-reveal aria-labelledby="gears-title">
       <div class="page--tech gears">
         <!-- TODO(asset): cockpit or display photo. -->
-        <img class="gears__media media-fill" src="/photos/t01.jpg" alt="Panquire T-01 electric dirt bike" width="1008" height="1056" loading="lazy" decoding="async" />
+        <img class="gears__media media-fill" src={withBase('/photos/t01.jpg')} alt="Panquire T-01 electric dirt bike" width="1008" height="1056" loading="lazy" decoding="async" />
 
         <div class="gears__panel">
           <p class="eyebrow eyebrow--tech">Three gears</p>
@@ -346,7 +347,7 @@ const schema = [
                device and carry the two published dimensions. -->
           <figure class="drawing">
             {photo ? (
-              <img class="drawing__img" src="/photos/t01.jpg" alt="Side view of the T-01 used as a dimension reference" width="920" height="700" loading="lazy" />
+              <img class="drawing__img" src={withBase('/photos/t01.jpg')} alt="Side view of the T-01 used as a dimension reference" width="920" height="700" loading="lazy" />
             ) : (
               <div class="drawing__img slot">T-01 side view</div>
             )}
@@ -455,7 +456,7 @@ const schema = [
         <div class="disclaimer__row">
           <p class="disclaimer__mark" aria-hidden="true">{site.name}</p>
           <nav class="disclaimer__links" aria-label="Product page">
-            <a href="/partners#corporate">Request a quote</a>
+            <a href={withBase('/partners#corporate')}>Request a quote</a>
             <a href="#specs">Specifications</a>
             <a href="#compare">Compare</a>
           </nav>

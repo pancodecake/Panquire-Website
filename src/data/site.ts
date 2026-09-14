@@ -25,47 +25,52 @@ export const site = {
   updated: '2026-09-11',
 };
 
+export const withBase = (value: string) =>
+  value.startsWith('/') && !value.startsWith('//')
+    ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}${value}`
+    : value;
+
 export const nav = [
-  { href: '/products/t-01', label: 'Bikes' },
-  { href: '/about', label: 'About us' },
-  { href: '/partners', label: 'Partners' },
-  { href: '/terms', label: 'Terms' },
+  { href: withBase('/products/t-01'), label: 'Bikes' },
+  { href: withBase('/about'), label: 'About us' },
+  { href: withBase('/partners'), label: 'Partners' },
+  { href: withBase('/terms'), label: 'Terms' },
 ];
 
 export const footerColumns = [
   {
     title: 'Shop',
     links: [
-      { href: '/products/t-01', label: 'T-01' },
-      { href: '/products/t-01?model=T-02', label: 'T-02' },
-      { href: '/products/t-01#compare', label: 'Compare models' },
+      { href: withBase('/products/t-01'), label: 'T-01' },
+      { href: withBase('/products/t-01?model=T-02'), label: 'T-02' },
+      { href: withBase('/products/t-01#compare'), label: 'Compare models' },
     ],
   },
   {
     title: 'Company',
     links: [
-      { href: '/about', label: 'About us' },
-      { href: '/about#founder', label: 'About us' },
-      { href: '/partners#strategic', label: 'Strategic partnerships' },
+      { href: withBase('/about'), label: 'About us' },
+      { href: withBase('/about#founder'), label: 'About us' },
+      { href: withBase('/partners#strategic'), label: 'Strategic partnerships' },
     ],
   },
   {
     title: 'Business & partners',
     links: [
-      { href: '/partners#corporate', label: 'Corporate & bulk purchase' },
-      { href: '/partners#corporate', label: 'Dealers & fleet' },
-      { href: '/partners#affiliate', label: 'Affiliate program' },
-      { href: '/partners#affiliate-terms', label: 'Affiliate terms' },
+      { href: withBase('/partners#corporate'), label: 'Corporate & bulk purchase' },
+      { href: withBase('/partners#corporate'), label: 'Dealers & fleet' },
+      { href: withBase('/partners#affiliate'), label: 'Affiliate program' },
+      { href: withBase('/partners#affiliate-terms'), label: 'Affiliate terms' },
     ],
   },
   {
     title: 'Customer care',
     links: [
       { href: `mailto:${site.email}`, label: 'Contact us' },
-      { href: '/terms?tab=shipping', label: 'Shipping policy' },
-      { href: '/terms?tab=payment', label: 'Payment methods' },
-      { href: '/terms?tab=warranty', label: 'Warranty policy' },
-      { href: '/terms?tab=returns', label: 'Returns & refunds' },
+      { href: withBase('/terms?tab=shipping'), label: 'Shipping policy' },
+      { href: withBase('/terms?tab=payment'), label: 'Payment methods' },
+      { href: withBase('/terms?tab=warranty'), label: 'Warranty policy' },
+      { href: withBase('/terms?tab=returns'), label: 'Returns & refunds' },
     ],
   },
 ];
@@ -288,8 +293,8 @@ export const testimonials = [
     quote: 'This bike is a beast. The power delivery is immediate and the handling is sublime.',
     name: 'Liam N.',
     initials: 'LN',
-    photo: '/photos/rider-liam.png',
-    avatar: '/photos/avatar-liam.png',
+    photo: withBase('/photos/rider-liam.png'),
+    avatar: withBase('/photos/avatar-liam.png'),
     alt: 'Liam riding his blacked-out sport bike',
     rating: 5,
   },
@@ -347,10 +352,10 @@ export const featured = {
         ['Max Range', '50 mi'],
       ] as [string, string][],
       media: {
-        enter: '/media/featured/t01-enter.mp4',
-        out: '/media/featured/t01-out.mp4',
-        empty: '/media/featured/t01-empty.jpg',
-        rest: '/media/featured/t01-rest.jpg',
+        enter: withBase('/media/featured/t01-enter.mp4'),
+        out: withBase('/media/featured/t01-out.mp4'),
+        empty: withBase('/media/featured/t01-empty.jpg'),
+        rest: withBase('/media/featured/t01-rest.jpg'),
         enterIn: 0,
         enterSettle: 3.2,
         outIn: 0.7,
@@ -370,10 +375,10 @@ export const featured = {
       // TODO(media): no T-02 renders exist yet. Until they do, T-02 plays the
       // T-01 pair — the stage dedupes identical sources, so nothing loads twice.
       media: {
-        enter: '/media/featured/t01-enter.mp4',
-        out: '/media/featured/t01-out.mp4',
-        empty: '/media/featured/t01-empty.jpg',
-        rest: '/media/featured/t01-rest.jpg',
+        enter: withBase('/media/featured/t01-enter.mp4'),
+        out: withBase('/media/featured/t01-out.mp4'),
+        empty: withBase('/media/featured/t01-empty.jpg'),
+        rest: withBase('/media/featured/t01-rest.jpg'),
         enterIn: 0,
         enterSettle: 3.2,
         outIn: 0.7,
@@ -410,8 +415,8 @@ type PanoramaSet = {
 };
 
 const t01Panorama: PanoramaSet = {
-  frames: '/media/panorama/t01/',
-  poster: '/media/panorama/t01/poster.jpg',
+  frames: withBase('/media/panorama/t01/'),
+  poster: withBase('/media/panorama/t01/poster.jpg'),
   posterWidth: 1008,
   posterHeight: 1056,
   secondsPerTurn: 12,

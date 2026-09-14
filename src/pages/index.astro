@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { site, valueProps, marquee, models, testimonials, featured } from '../data/site';
+import { site, valueProps, marquee, models, testimonials, featured, withBase } from '../data/site';
 import { hasAsset } from '../data/assets';
 
 const title = 'Electric dirt bikes built around four numbers';
@@ -51,7 +51,7 @@ const icons: Record<string, string> = {
        Full-bleed bike shot masked into the right of the frame, a crimson
        bloom behind it, and the headline holding the left. -->
   <section class="hero" id="top" aria-labelledby="hero-title">
-    <div class="hero__photo" style={bikePhoto ? "--photo:url(/photos/bike-t01.jpg)" : undefined} aria-hidden="true"></div>
+    <div class="hero__photo" style={bikePhoto ? `--photo:url(${withBase('/photos/bike-t01.jpg')})` : undefined} aria-hidden="true"></div>
     <div class="hero__bloom" aria-hidden="true"></div>
     <div class="hero__scrim" aria-hidden="true"></div>
     <div class="hero__floor" aria-hidden="true"></div>
@@ -70,8 +70,8 @@ const icons: Record<string, string> = {
       </p>
 
       <div class="cluster hero__actions" data-reveal>
-        <a class="btn btn--primary" href="/products/t-01">Configure the T-01</a>
-        <a class="btn btn--ghost" href="/products/t-01#compare">Compare models</a>
+        <a class="btn btn--primary" href={withBase('/products/t-01')}>Configure the T-01</a>
+        <a class="btn btn--ghost" href={withBase('/products/t-01#compare')}>Compare models</a>
       </div>
 
       <dl class="hero__rail" data-reveal>
@@ -122,13 +122,13 @@ const icons: Record<string, string> = {
           the factory floor. That is why an 8 kW bike lands at the price of a
           mid-range commuter.
         </p>
-        <p class="about__cta"><a class="btn btn--ghost" href="/about">About us</a></p>
+        <p class="about__cta"><a class="btn btn--ghost" href={withBase('/about')}>About us</a></p>
       </div>
 
       <figure class="about__figure" data-reveal>
         <div class="about__glow" aria-hidden="true"></div>
         {riderPhoto ? (
-          <img class="about__photo" src="/photos/rider-liam.png" alt="Rider on a blacked-out bike at dusk" width="797" height="682" loading="lazy" />
+          <img class="about__photo" src={withBase('/photos/rider-liam.png')} alt="Rider on a blacked-out bike at dusk" width="797" height="682" loading="lazy" />
         ) : (
           <div class="about__photo slot">Rider photograph</div>
         )}
@@ -293,7 +293,7 @@ const icons: Record<string, string> = {
   <!-- ========== 7 · LEAD CAPTURE ==========
        One field. The comparison goes to the inbox, not onto the page. -->
   <section class="capture" id="compare" aria-labelledby="capture-title">
-    <div class="capture__photo" style={bikePhoto ? "--photo:url(/photos/bike-t01.jpg)" : undefined} aria-hidden="true"></div>
+    <div class="capture__photo" style={bikePhoto ? `--photo:url(${withBase('/photos/bike-t01.jpg')})` : undefined} aria-hidden="true"></div>
     <div class="capture__scrim" aria-hidden="true"></div>
 
     <div class="capture__body">
